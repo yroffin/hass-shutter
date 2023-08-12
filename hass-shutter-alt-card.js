@@ -34,6 +34,7 @@ class ShutterAltCard extends HTMLElement {
         }
 
         this._shutter = document.createElement('div');
+        this._shutter.setAttribute("style", "text-align: center;")
         this.appendChild(this._shutter)
 
         let maxWidth = this.config.lamePosX * 2 + this.config.shutterLameWidth;
