@@ -23,6 +23,7 @@ class ShutterAltCard extends HTMLElement {
     }
 
     set hass(value) {
+        console.log('hass')
         this._hass = value;
 
         this._shutter = document.createElement('div');
@@ -69,6 +70,7 @@ class ShutterAltCard extends HTMLElement {
     static observedAttributes = ["hass"];
 
     attributeChangedCallback(name, oldValue, newValue) {
+        console.log('attributeChangedCallback')
         // name will always be "country" due to observedAttributes
         if (name === "hass") {
             this._hass = newValue;
@@ -77,6 +79,7 @@ class ShutterAltCard extends HTMLElement {
     }
 
     connectedCallback() {
+        console.log('connectedCallback')
         this._updateRendering();
     }
 
@@ -84,6 +87,7 @@ class ShutterAltCard extends HTMLElement {
     }
 
     setConfig(config) {
+        console.log('setConfig')
         if (!config.entities) {
             throw new Error('You need to define entities');
         }
