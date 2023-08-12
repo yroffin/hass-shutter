@@ -25,6 +25,13 @@ class ShutterAltCard extends HTMLElement {
     set hass(value) {
         console.log('hass')
         this._hass = value;
+        this.init()
+    }
+
+    init() {
+        if (this._shutter) {
+            this._shutter.remove()            
+        }
 
         this._shutter = document.createElement('div');
         this.appendChild(this._shutter)
