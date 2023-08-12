@@ -1,12 +1,8 @@
 class ShutterAltCard extends HTMLElement {
     constructor() {
         super();
-        this._hass = null;
-        this._shutter = null;
 
         this.config = {
-            // Associated entities
-            entities: [],
             // Lame count number
             lameCount: 20,
             // size
@@ -18,25 +14,27 @@ class ShutterAltCard extends HTMLElement {
         };
     }
 
-    get hass() {
-        return this._hass;
-    }
-
-    set hass(value) {
-        console.log('hass')
-        this._hass = value;
-        this.init()
-    }
-
-    init() {
-        if (this._shutter) {
-            this._shutter.remove()            
+    // Whenever the state changes, a new `hass` object is set. Use this to
+    // update your content.
+    set hass(hass) {
+        // Initialize the content if it's not there yet.
+        if (!this.content) {
+            this.innerHTML = `
+        <ha-card header="Example-card">
+          <div class="card-content"></div>
+        </ha-card>
+      `;
+            this.content = this.querySelector("div");
         }
 
-        this._shutter = document.createElement('div');
-        this._shutter.setAttribute("style", "text-align: center;")
-        this.appendChild(this._shutter)
+        const entityId = this.config.entity;
+        const state = hass.states[entityId];
+        const stateStr = state ? state.state : "unavailable";
 
+        this.content.innerHTML = this.buildInnterHTML();
+    }
+
+    buildInnterHTML() {
         let maxWidth = this.config.lamePosX * 2 + this.config.shutterLameWidth;
         let maxHeight = this.config.lamePosY * 2 + this.config.shutterLameHeight * this.config.lameCount;
 
@@ -63,7 +61,7 @@ class ShutterAltCard extends HTMLElement {
             lameCount += 1;
         })
 
-        this._shutter.innerHTML = `
+        return `
         <svg width="${maxWidth}" height="${maxHeight}" xmlns="http://www.w3.org/2000/svg">
         <g>
         <!-- background rectangle -->
@@ -75,32 +73,25 @@ class ShutterAltCard extends HTMLElement {
         `
     }
 
-    static observedAttributes = ["hass"];
-
-    attributeChangedCallback(name, oldValue, newValue) {
-        console.log('attributeChangedCallback')
-        // name will always be "country" due to observedAttributes
-        if (name === "hass") {
-            this._hass = newValue;
-        }
-        this._updateRendering();
-    }
-
-    connectedCallback() {
-        console.log('connectedCallback')
-        this._updateRendering();
-    }
-
-    _updateRendering() {
-    }
-
     setConfig(config) {
-        console.log('setConfig')
-        if (!config.entities) {
+        if (!config.entity) {
             throw new Error('You need to define entities');
         }
 
         this.config = config;
+
+        // Default values
+        if (!this.config.lameCount) this.config.lameCount = 20
+        if (!this.config.shutterLameWidth) this.config.shutterLameWidth = 200
+        if (!this.config.shutterLameHeight) this.config.shutterLameHeight = 10
+        if (!this.config.lamePosX) this.config.lamePosX = 10
+        if (!this.config.lamePosY) this.config.lamePosY = 10
+    }
+
+    // The height of your card. Home Assistant uses this to automatically
+    // distribute all cards over the available columns.
+    getCardSize() {
+        return 3;
     }
 }
 

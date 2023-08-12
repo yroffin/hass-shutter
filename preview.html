@@ -7,7 +7,12 @@
         function init() {
             const shutterCard = document.createElement("shutter-alt-card");
             document.body.appendChild(shutterCard);
-            shutterCard.hass = {}
+            shutterCard.setConfig({
+                entity: "entity#1"
+            })
+            shutterCard.hass = {
+                states: []
+            }
         }
     </script>
 </head>
