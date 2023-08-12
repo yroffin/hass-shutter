@@ -92,4 +92,4 @@ class ShutterAltCard extends HTMLElement {
     }
 }
 
-customElements.define("shutter-card-alt", ShutterAltCard);
+customElements.define("shutter-alt-card", ShutterAltCard);
