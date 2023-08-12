@@ -1,0 +1,18 @@
+<html lang="fr">
+
+<head>
+    <title>Simple HA shutter</title>
+    <script type="text/javascript" src="hass-shutter.js"></script>
+    <script>
+        function init() {
+            const shutterCard = document.createElement("shutter-card");
+            document.body.appendChild(shutterCard);
+            shutterCard.hass = {}
+        }
+    </script>
+</head>
+
+<body onload="init()">
+</body>
+
+</html>

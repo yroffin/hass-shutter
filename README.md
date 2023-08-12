@@ -1,2 +1,2 @@
-# hass-shutter
+# hass-shutter-alt
 Simple homeassistant shutter
