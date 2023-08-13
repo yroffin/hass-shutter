@@ -138,9 +138,6 @@ class ShutterAltCard extends HTMLElement {
         // Set config
         this.config = config;
 
-        // Default values
-        if (!this.config.debug) this.config.debug = false
-
         // shutter
         if (!this.config.shutter) this.config.shutter = {
             // Color
