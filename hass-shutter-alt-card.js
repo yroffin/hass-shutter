@@ -79,7 +79,7 @@ class ShutterAltCard extends HTMLElement {
         return `
         <svg width="${maxWidth}" height="${maxHeight}" xmlns="http://www.w3.org/2000/svg">
         <!-- background rectangle -->
-        <rect stroke="${this.config.shutter.stroke}" id="my-rect-background-${this.config.entity}" height="${maxHeight}" width="${maxWidth}" y="0" x="0" fill="${this.config.shutter.fill}"/>
+        <rect stroke="${this.config.background.stroke}" id="my-rect-background-${this.config.entity}" height="${maxHeight}" width="${maxWidth}" y="0" x="0" fill="${this.config.background.fill}"/>
         <g id="my-panel" transform="translate(${x},${y})">
         <!-- lame rectangle -->
         ${group}
@@ -139,7 +139,7 @@ class ShutterAltCard extends HTMLElement {
         this.config = config;
 
         // shutter
-        if (!this.config.shutter) this.config.shutter = {
+        if (!this.config.background) this.config.background = {
             // Color
             "stroke": "#000000",
             "fill": "#bfbfbf"
