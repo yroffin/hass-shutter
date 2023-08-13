@@ -136,7 +136,7 @@ class ShutterAltCard extends HTMLElement {
         }
 
         // Set config
-        this.config = config;
+        this.config = JSON.parse(JSON.stringify(config));
 
         // shutter
         if (!this.config.misc) this.config.misc = {
