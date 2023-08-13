@@ -18,7 +18,7 @@ class ShutterAltCard extends HTMLElement {
     // Whenever the state changes, a new `hass` object is set. Use this to
     // update your content.
     set hass(hass) {
-        console.log("setHass(", hass)
+        console.log("setHass()", hass)
 
         // Initialize the content if it's not there yet.
         if (!this.content) {
@@ -33,6 +33,10 @@ class ShutterAltCard extends HTMLElement {
         const entityId = this.config.entity;
         const state = hass.states[entityId];
         const stateStr = state ? state.state : "unavailable";
+
+        const currentPosition = state ? state.attributes.current_position : 'unknown';
+        const movementState = state ? state.state : 'unknown';
+        console.log(`[DEBUG] currentPosition: ${currentPosition} movementState: ${movementState}`)
 
         this.content.innerHTML = this.buildInnterHTML();
     }
@@ -91,7 +95,6 @@ class ShutterAltCard extends HTMLElement {
         if (!this.config.shutterLameHeight) this.config.shutterLameHeight = 10
         if (!this.config.lamePosX) this.config.lamePosX = 10
         if (!this.config.lamePosY) this.config.lamePosY = 10
-        if (!this.config.title) this.config.title = "Shutter"
     }
 
     // The height of your card. Home Assistant uses this to automatically
