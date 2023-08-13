@@ -1,3 +1,4 @@
+// Cf. https://developers.home-assistant.io/docs/frontend/custom-ui/custom-card?_highlight=custome
 class ShutterAltCard extends HTMLElement {
     constructor() {
         super();
@@ -17,10 +18,12 @@ class ShutterAltCard extends HTMLElement {
     // Whenever the state changes, a new `hass` object is set. Use this to
     // update your content.
     set hass(hass) {
+        console.log("setHass(", hass)
+
         // Initialize the content if it's not there yet.
         if (!this.content) {
             this.innerHTML = `
-        <ha-card header="Example-card">
+        <ha-card header="${this.config.title}">
           <div class="card-content"></div>
         </ha-card>
       `;
@@ -35,9 +38,11 @@ class ShutterAltCard extends HTMLElement {
     }
 
     buildInnterHTML() {
+        // Compute max size for width and heights
         let maxWidth = this.config.lamePosX * 2 + this.config.shutterLameWidth;
         let maxHeight = this.config.lamePosY * 2 + this.config.shutterLameHeight * this.config.lameCount;
 
+        // Initial position for widget
         let x = this.config.lamePosX;
         let y = this.config.lamePosY;
 
@@ -86,6 +91,7 @@ class ShutterAltCard extends HTMLElement {
         if (!this.config.shutterLameHeight) this.config.shutterLameHeight = 10
         if (!this.config.lamePosX) this.config.lamePosX = 10
         if (!this.config.lamePosY) this.config.lamePosY = 10
+        if (!this.config.title) this.config.title = "Shutter"
     }
 
     // The height of your card. Home Assistant uses this to automatically
