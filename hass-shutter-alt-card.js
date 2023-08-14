@@ -36,8 +36,8 @@ class ShutterAltCard extends HTMLElement {
 
         if (state) {
             if (state.attributes) {
-                const currentPosition = state.attributes.current_position ? state.attributes.current_position : undefined;
-                const currentTiltPosition = state.attributes.current_tilt_position ? state.attributes.current_tilt_position : undefined;
+                currentPosition = state.attributes.current_position ? state.attributes.current_position : undefined;
+                currentTiltPosition = state.attributes.current_tilt_position ? state.attributes.current_tilt_position : undefined;
             }
         }
 
