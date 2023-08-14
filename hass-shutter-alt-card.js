@@ -18,16 +18,6 @@ class ShutterAltCard extends HTMLElement {
     set hass(hass) {
         console.log("setHass()", hass)
 
-        // Initialize the content if it's not there yet.
-        if (!this.content) {
-            this.innerHTML = `
-        <ha-card header="${this.config.title}">
-          <div class="card-content"></div>
-        </ha-card>
-      `;
-            this.content = this.querySelector("div");
-        }
-
         const entityId = this.config.entity;
         const state = hass.states[entityId];
 
@@ -45,7 +35,8 @@ class ShutterAltCard extends HTMLElement {
 
         console.log(`[DEBUG] currentPosition: ${currentPosition} currentTiltPosition: ${currentTiltPosition} movementState: ${movementState}`)
 
-        this.content.innerHTML = this.buildInnterHTML();
+        // Initialize the content if it's not there yet.
+        this.innerHTML = this.buildInnterHTML();
 
         if (currentPosition) {
             this.setPosition(currentPosition)
@@ -91,6 +82,9 @@ class ShutterAltCard extends HTMLElement {
         this.log(this.config.motor)
 
         return `
+        <ha-card header="${this.config.title}">
+        <div class="card-content">
+
         <svg id="my-shutter-${this.config.entity}" width="${maxWidth}" height="${maxHeight}" xmlns="http://www.w3.org/2000/svg">
         <!-- misc rectangle -->
         <rect stroke="${this.config.misc.stroke}" id="my-rect-misc-${this.config.entity}" height="${maxHeight}" width="${maxWidth}" y="0" x="0" fill="${this.config.misc.fill}"/>
@@ -125,20 +119,31 @@ class ShutterAltCard extends HTMLElement {
             </g>
         </g>
         </svg>
+
+        </div>
+        </ha-card>
         `
     }
 
     // Find by selector
-    querySelectorInline(selector) {
-        let elements = document.getElementsByTagName('svg');
+    find(element, id, collector) {
+        for (let child = 0; child < element.childElementCount;child++) {
+            if (element.children[child].id === id) {
+                collector.push(element.children[child])
+            }
+            this.find(element.children[child], id, collector);
+        }
+    }
 
-        console.log(elements[0].children);
-        let element = document.getElementsByName(selector);
-        if (!element) {
+    // Find by selector
+    querySelectorInline(selector) {
+        let collector = [];
+        console.log("final", this.find(this, selector, collector))
+        if (collector.length === 0) {
             this.log("Unable to find any element with id", selector)
         } else {
-            this.log("Found", selector, element)
-            return element[0]
+            this.log("Found", selector, collector)
+            return collector[0]
         }
     }
 
