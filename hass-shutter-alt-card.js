@@ -130,13 +130,13 @@ class ShutterAltCard extends HTMLElement {
 
     // Fix position
     setPosition(posy) {
-        let panel = this.content.getElementById(`my-panel-${this.config.entity}`);
+        let panel = this.content.querySelector(`g#my-panel-${this.config.entity}`);
         if (panel) {
             panel.setAttribute("transform", `translate(${this.config.lame.x},${this.config.lame.y - posy})`);
         } else {
             this.log("Unable to find any element with id", `my-panel-${this.config.entity}`)
         }
-        let hud = this.content.getElementById(`my-hud-value-${this.config.entity}`);
+        let hud = this.content.querySelector(`g#my-hud-value-${this.config.entity}`);
         if (hud) {
             hud.innerHTML = posy;
         } else {
