@@ -94,7 +94,7 @@ class ShutterAltCard extends HTMLElement {
         <svg width="${maxWidth}" height="${maxHeight}" xmlns="http://www.w3.org/2000/svg">
         <!-- misc rectangle -->
         <rect stroke="${this.config.misc.stroke}" id="my-rect-misc-${this.config.entity}" height="${maxHeight}" width="${maxWidth}" y="0" x="0" fill="${this.config.misc.fill}"/>
-        <g id="my-panel" transform="translate(${x},${y})">
+        <g id="my-panel-${this.config.entity}" transform="translate(${x},${y})">
         <!-- lame rectangle -->
         ${group}
         </g>
@@ -130,7 +130,7 @@ class ShutterAltCard extends HTMLElement {
 
     // Fix position
     setPosition(posy) {
-        let panel = document.getElementById(`my-panel`);
+        let panel = document.getElementById(`my-panel-${this.config.entity}`);
         if (panel) {
             panel.setAttribute("transform", `translate(${this.config.lame.x},${this.config.lame.y - posy})`);
         }
@@ -267,4 +267,5 @@ class ShutterAltCard extends HTMLElement {
     }
 }
 
-customElements.define("shutter-alt-card", ShutterAltCard);
+// Fix Uncaught DOMException: Failed to execute 'define' on 'CustomElementRegistry'
+if (!customElements.get('shutter-alt-card')) { customElements.define('shutter-alt-card', ShutterAltCard); }
