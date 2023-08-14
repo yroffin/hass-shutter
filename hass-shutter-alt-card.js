@@ -47,12 +47,15 @@ class ShutterAltCard extends HTMLElement {
 
         this.content.innerHTML = this.buildInnterHTML();
 
-        if (currentPosition) {
-            this.setPosition(currentPosition)
-        }
-        if (currentTiltPosition) {
-            this.setPosition(currentTiltPosition)
-        }
+        let _this = this;
+        setTimeout(() => {
+            if (currentPosition) {
+                _this.setPosition(currentPosition)
+            }
+            if (currentTiltPosition) {
+                _this.setPosition(currentTiltPosition)
+            }
+        },100)
     }
 
     // Build inner HTML of component

@@ -8,12 +8,12 @@
             const shutterCard = document.createElement("shutter-alt-card");
             document.body.appendChild(shutterCard);
             shutterCard.setConfig({
-                entity: "cover.pergola",
+                entity: "cover.pergola_roof",
                 debug: true
             })
             const global_hass = {
                 states: {
-                    "cover.pergola": {
+                    "cover.pergola_roof": {
                         "attributes": {
                             current_position: 0
                         }
@@ -28,7 +28,7 @@
             document.body.appendChild(button0);
 
             button0.onclick = function () {
-                global_hass.states["cover.pergola"].attributes.current_position = 0;
+                global_hass.states["cover.pergola_roof"].attributes.current_position = 0;
                 shutterCard.hass = JSON.parse(JSON.stringify(global_hass));
             };
             // add button 50
@@ -38,7 +38,7 @@
             document.body.appendChild(button50);
 
             button50.onclick = function () {
-                global_hass.states["cover.pergola"].attributes.current_position = 50;
+                global_hass.states["cover.pergola_roof"].attributes.current_position = 50;
                 shutterCard.hass = JSON.parse(JSON.stringify(global_hass));
             };
             // add button 100
@@ -48,7 +48,7 @@
             document.body.appendChild(button100);
 
             button100.onclick = function () {
-                global_hass.states["cover.pergola"].attributes.current_position = 100;
+                global_hass.states["cover.pergola_roof"].attributes.current_position = 100;
                 shutterCard.hass = JSON.parse(JSON.stringify(global_hass));
             };
         }
