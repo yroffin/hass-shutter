@@ -33,8 +33,10 @@ class ShutterAltCard extends HTMLElement {
         const stateStr = state ? state.state : "unavailable";
 
         const currentPosition = state ? state.attributes.current_position : 'unknown';
+        const currentTiltPosition = state ? state.attributes.current_tilt_position : 'unknown';
         const movementState = state ? state.state : 'unknown';
-        console.log(`[DEBUG] currentPosition: ${currentPosition} movementState: ${movementState}`)
+
+        console.log(`[DEBUG] currentPosition: ${currentPosition} currentTiltPosition: ${currentTiltPosition} movementState: ${movementState}`)
 
         this.content.innerHTML = this.buildInnterHTML();
 
