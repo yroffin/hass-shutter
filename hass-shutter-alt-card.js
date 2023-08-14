@@ -47,15 +47,12 @@ class ShutterAltCard extends HTMLElement {
 
         this.content.innerHTML = this.buildInnterHTML();
 
-        let _this = this;
-        setTimeout(() => {
-            if (currentPosition) {
-                _this.setPosition(currentPosition)
-            }
-            if (currentTiltPosition) {
-                _this.setPosition(currentTiltPosition)
-            }
-        },100)
+        if (currentPosition) {
+            this.setPosition(currentPosition)
+        }
+        if (currentTiltPosition) {
+            this.setPosition(currentTiltPosition)
+        }
     }
 
     // Build inner HTML of component
@@ -133,13 +130,13 @@ class ShutterAltCard extends HTMLElement {
 
     // Fix position
     setPosition(posy) {
-        let panel = document.getElementById(`my-panel-${this.config.entity}`);
+        let panel = this.content.getElementById(`my-panel-${this.config.entity}`);
         if (panel) {
             panel.setAttribute("transform", `translate(${this.config.lame.x},${this.config.lame.y - posy})`);
         } else {
             this.log("Unable to find any element with id", `my-panel-${this.config.entity}`)
         }
-        let hud = document.getElementById(`my-hud-value-${this.config.entity}`);
+        let hud = this.content.getElementById(`my-hud-value-${this.config.entity}`);
         if (hud) {
             hud.innerHTML = posy;
         } else {
