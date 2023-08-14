@@ -31,8 +31,8 @@ class ShutterAltCard extends HTMLElement {
         const entityId = this.config.entity;
         const state = hass.states[entityId];
 
-        const currentPosition = undefined;
-        const currentTiltPosition = undefined;
+        let currentPosition = undefined;
+        let currentTiltPosition = undefined;
 
         if (state) {
             if (state.attributes) {
