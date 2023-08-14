@@ -91,10 +91,10 @@ class ShutterAltCard extends HTMLElement {
         this.log(this.config.motor)
 
         return `
-        <svg width="${maxWidth}" height="${maxHeight}" xmlns="http://www.w3.org/2000/svg">
+        <svg id="my-shutter-${this.config.entity}" width="${maxWidth}" height="${maxHeight}" xmlns="http://www.w3.org/2000/svg">
         <!-- misc rectangle -->
         <rect stroke="${this.config.misc.stroke}" id="my-rect-misc-${this.config.entity}" height="${maxHeight}" width="${maxWidth}" y="0" x="0" fill="${this.config.misc.fill}"/>
-        <g id="my-panel-${this.config.entity}" transform="translate(${x},${y})">
+        <g name="my-panel-${this.config.entity}" transform="translate(${x},${y})">
         <!-- lame rectangle -->
         ${group}
         </g>
@@ -103,7 +103,7 @@ class ShutterAltCard extends HTMLElement {
         <!-- hud -->
         <g transform="translate(${this.config.hud.x},${this.config.hud.y})">
             <circle stroke="${this.config.hud.circle_stroke}" id="my-hud-circle-${this.config.entity}" stroke-width="${this.config.hud.circle_stroke_size}" cx="0" cy="0" r="${this.config.hud.circle_size}" fill="${this.config.hud.circle_fill}"/>
-            <text id="my-hud-value-${this.config.entity}" x="-10" y="5" stroke="${this.config.hud.text_stroke}" stroke-width="1px">VALUE</text>
+            <text name="my-hud-value-${this.config.entity}" x="-10" y="5" stroke="${this.config.hud.text_stroke}" stroke-width="1px">VALUE</text>
         </g>
         <!-- hud -->
         <g transform="translate(${this.config.command.up.x},${this.config.command.up.y})">
@@ -128,19 +128,26 @@ class ShutterAltCard extends HTMLElement {
         `
     }
 
+    // Find by selector
+    querySelectorInline(selector) {
+        let element = document.getElementsByName(selector);
+        if (!element) {
+            this.log("Unable to find any element with id", selector)
+        } else {
+            this.log("Found", selector, element)
+            return element[0]
+        }
+    }
+
     // Fix position
     setPosition(posy) {
-        let panel = this.content.querySelector(`g#my-panel-${this.config.entity}`);
+        let panel = this.querySelectorInline(`my-panel-${this.config.entity}`);
         if (panel) {
             panel.setAttribute("transform", `translate(${this.config.lame.x},${this.config.lame.y - posy})`);
-        } else {
-            this.log("Unable to find any element with id", `my-panel-${this.config.entity}`)
         }
-        let hud = this.content.querySelector(`g#my-hud-value-${this.config.entity}`);
+        let hud = this.querySelectorInline(`my-hud-value-${this.config.entity}`);
         if (hud) {
             hud.innerHTML = posy;
-        } else {
-            this.log("Unable to find any element with id", `my-hud-value-${this.config.entity}`)
         }
     }
 
