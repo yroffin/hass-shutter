@@ -145,9 +145,9 @@ class ShutterAltCard extends HTMLElement {
     }
 
     // Log
-    log(message) {
+    log(message, ...optionalParams) {
         if (this.config.debug) {
-            console.log("[DEBUG]", message);
+            console.log("[DEBUG]", message, optionalParams);
         }
     }
 
