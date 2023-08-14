@@ -30,17 +30,26 @@ class ShutterAltCard extends HTMLElement {
 
         const entityId = this.config.entity;
         const state = hass.states[entityId];
-        const stateStr = state ? state.state : "unavailable";
 
-        const currentPosition = state ? state.attributes.current_position : 'unknown';
-        const currentTiltPosition = state ? state.attributes.current_tilt_position : 'unknown';
-        const movementState = state ? state.state : 'unknown';
+        const currentPosition = undefined;
+        const currentTiltPosition = undefined;
+
+        if (state) {
+            if (state.attributes) {
+                const currentPosition = state.attributes.current_position ? state.attributes.current_position : undefined;
+                const currentTiltPosition = state.attributes.current_tilt_position ? state.attributes.current_tilt_position : undefined;
+            }
+        }
+
+        const movementState = state ? state.state : undefined;
 
         console.log(`[DEBUG] currentPosition: ${currentPosition} currentTiltPosition: ${currentTiltPosition} movementState: ${movementState}`)
 
         this.content.innerHTML = this.buildInnterHTML();
 
-        this.setPosition(currentPosition)
+        if (currentPosition) {
+            this.setPosition(currentPosition)
+        }
     }
 
     // Build inner HTML of component
