@@ -166,9 +166,9 @@ s    // Handler
         <!-- motor -->
         <rect stroke="${this.config.motor.stroke}" id="my-rect-motor-${this.config.entity}" height="${this.config.motor.height}" width="${maxWidth}" x="${this.config.motor.x}" y="${this.config.motor.y}" fill="${this.config.motor.fill}"/>
         <!-- hud -->
-        <g transform="translate(${this.config.hud.x},${this.config.hud.y})">
-            <circle stroke="${this.config.hud.circle_stroke}" id="my-hud-circle-${this.config.entity}" stroke-width="${this.config.hud.circle_stroke_size}" cx="0" cy="0" r="${this.config.hud.circle_size}" fill="${this.config.hud.circle_fill}"/>
-            <text id="my-hud-value-${this.config.entity}" x="-10" y="5" stroke="${this.config.hud.text_stroke}" stroke-width="1px">VALUE</text>
+        <g transform="translate(${this.config.hud.x},${this.config.hud.y})" fill-opacity="${this.config.hud.fillOpacity}">
+            <circle stroke="${this.config.hud.circle.stroke}" id="my-hud-circle-${this.config.entity}" stroke-width="${this.config.hud.circle.strokeSize}" cx="0" cy="0" r="${this.config.hud.circle.size}" fill="${this.config.hud.circle.fill}"/>
+            <text id="my-hud-value-${this.config.entity}" text-anchor="middle" x="0" y="5" stroke="${this.config.hud.text.stroke}" stroke-width="1px">VALUE</text>
         </g>
         <!-- hud -->
         <g id="my-cmd-up-${this.config.entity}" transform="translate(${this.config.command.up.x},${this.config.command.up.y})" fill-opacity="${this.config.command.fillOpacity}">
@@ -286,20 +286,26 @@ s    // Handler
 
         // hud
         if (!this.config.hud) this.config.hud = {
-            "x": 110,
-            "y": 150,
-            "circle_size": 20,
-            "circle_stroke_size": 4,
-            // Color
-            "circle_stroke": "#000000",
-            "text_stroke": "#000000",
-            "circle_fill": "#ffffff"
+            "x": 180,
+            "y": 40,
+            "fillOpacity": 0.6,
+            // Circle
+            "circle": {
+                "size": 20,
+                "strokeSize": 2,
+                "stroke": "#000000",
+                "fill": "#ffffff"
+            },
+            // Text
+            "text": {
+                "stroke": "#000000"
+            }
         }
 
         // command
         if (!this.config.command) this.config.command = {
             // Global
-            "fillOpacity": 0.7,
+            "fillOpacity": 0.6,
             // Up
             "up": {
                 "x": 40,
@@ -354,6 +360,8 @@ s    // Handler
                 "fill": "#ffffff"
             }
         }
+
+        console.log(this.config)
     }
 
     // The height of your card. Home Assistant uses this to automatically
