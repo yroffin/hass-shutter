@@ -3,14 +3,6 @@ class ShutterAltCard extends HTMLElement {
     // Constructor
     constructor() {
         super();
-
-        this.config = {
-            // Lame count number
-            lameCount: 20,
-            // pos
-            lamePosX: 10,
-            lamePosY: 10
-        };
     }
 
     // Whenever the state changes, a new `hass` object is set. Use this to
