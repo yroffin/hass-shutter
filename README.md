@@ -6,6 +6,11 @@ This project aim to have a full parametrized shutter (color, position ...)
 
 /!\ this component is in beta mode ... so many bugs can occurs
 
+Special thanks to Deejayfool
+- https://github.com/Deejayfool/hass-shutter-card/tree/master
+
+and Cf. https://developers.home-assistant.io/docs/frontend/custom-ui/custom-card
+
 # Setup
 
 Enable "Advanced Mode" from your user profile page then
