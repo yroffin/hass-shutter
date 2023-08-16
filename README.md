@@ -24,7 +24,8 @@ Enable "Advanced Mode" from your user profile page then
 
 ```yaml
   entity: "cover.pergola_roof"
-  debug: true
+  debug: true | false
+  tilt: true | false
   misc: 
     stroke: "#000000"
     fill: "#bfbfbf"
