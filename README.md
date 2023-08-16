@@ -1,5 +1,18 @@
-# hass-shutter-alt
+# Component hass-shutter-alt (beta)
+
 Simple homeassistant shutter
+
+This project aim to have a full parametrized shutter (color, position ...)
+
+/!\ this component is in beta mode ... so many bugs can occurs
+
+# Setup
+
+Enable "Advanced Mode" from your user profile page then
+
+- add hass-shutter-alt-card.js to your <config>/www/community folder
+- add url /local/community/hass-shutter-alt-card.js?v=1 from Configuration -> Lovelace Dashboards -> Resources panel
+  v1 can be usefull to force refresh on js file loading in your browser
 
 # Structure
 

@@ -33,9 +33,9 @@ class ShutterAltCard extends HTMLElement {
             }
         }
 
-        const movementState = state ? state.state : undefined;
+        const status = state ? state.state : undefined;
 
-        this.log("position", currentPosition, currentTiltPosition, movementState);
+        this.log("position", currentPosition, currentTiltPosition, status);
 
         // Initialize the content if it's not there yet.
         this.innerHTML = this.buildInnterHTML();
@@ -45,7 +45,7 @@ class ShutterAltCard extends HTMLElement {
         if (cmdUp) {
             cmdUp.addEventListener("click", (e) => {
                 this.eventHandler("up", e);
-            });                
+            });
         }
 
         let cmdStop = this.querySelectorInline(`my-cmd-stop-${this.config.entity}`);
@@ -67,11 +67,18 @@ class ShutterAltCard extends HTMLElement {
         } else {
             if (currentPosition >= 0) {
                 this.setPosition(currentPosition)
+            } else {
+                if (status === 'open') {
+                    this.setPosition(100)
+                }
+                if (status === 'closed') {
+                    this.setPosition(0)
+                }
             }
         }
     }
 
-s    // Handler
+    s    // Handler
     eventHandler(target, event) {
         this.log("eventHandler", target, event);
         this.command(target);
@@ -81,34 +88,45 @@ s    // Handler
     command(command, position) {
         let service = '';
         let args = '';
-    
-        switch (command) {
-            case 'up':
-                service = 'open_cover';
-                break;
 
-            case 'down':
-                service = 'close_cover';
-                break;
+        if (this.config.tilt) {
+            switch (command) {
+                case 'up':
+                    service = 'open_cover_tilt';
+                    break;
 
-            case 'stop':
-                service = 'stop_cover';
-                break;
-            case 'setPosition':
-                service = 'set_cover_position';
-                args = {
-                    position: position
-                }
-                break;
-            case 'tilt-open':
-                service = 'open_cover_tilt';
-                break;
-            case 'tilt-close':
-                service = 'close_cover_tilt';
-                break;
-            default:
-                return
+                case 'down':
+                    service = 'close_cover_tilt';
+                    break;
+
+                case 'stop':
+                    service = 'stop_cover_tilt';
+                    break;
+                default:
+                    return
+            }
+        } else {
+            switch (command) {
+                case 'up':
+                    service = 'open_cover';
+                    break;
+
+                case 'down':
+                    service = 'close_cover';
+                    break;
+
+                case 'stop':
+                    service = 'stop_cover';
+                    break;
+                default:
+                    return
+            }
         }
+
+        this.log("callService", 'cover', service, {
+            entity_id: this.config.entity,
+            ...args
+        });
 
         this.callService('cover', service, {
             entity_id: this.config.entity,
@@ -153,7 +171,7 @@ s    // Handler
 
         return `
         <ha-card header="${this.config.title}">
-        <div class="card-content">
+        <div class="card-content" style="text-align: center;">
 
         <svg id="my-shutter-${this.config.entity}" width="${maxWidth}" height="${maxHeight}" xmlns="http://www.w3.org/2000/svg">
 
@@ -302,6 +320,9 @@ s    // Handler
             }
         }
 
+        // tilt
+        if (!this.config.tilt) this.config.tilt = false
+
         // command
         if (!this.config.command) this.config.command = {
             // Global
@@ -360,8 +381,6 @@ s    // Handler
                 "fill": "#ffffff"
             }
         }
-
-        console.log(this.config)
     }
 
     // The height of your card. Home Assistant uses this to automatically
