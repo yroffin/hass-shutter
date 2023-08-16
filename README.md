@@ -1,7 +1,13 @@
 # hass-shutter-alt
 Simple homeassistant shutter
 
-# Default configuration
+# Structure
+
+## Abstract
+
+![](README.png)
+
+## Default configuration
 
 ```yaml
   entity: "cover.pergola_roof"
