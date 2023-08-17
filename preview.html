@@ -4,33 +4,38 @@
     <title>Simple HA shutter</title>
     <script type="text/javascript" src="hass-shutter-alt-card.js"></script>
     <script>
-        function init() {
-
-            function cloneHass() {
-                let clone = JSON.parse(JSON.stringify(global_hass));
-                clone.callService = (...args) => {
-                    console.log("SERVICE", args);
-                }
-                return clone;
+        function cloneHass(hass) {
+            let clone = JSON.parse(JSON.stringify(hass));
+            clone.callService = (...args) => {
+                console.log("SERVICE", args);
             }
+            return clone;
+        }
+        function addShutter(config) {
+            const title = document.createElement("div");
+            title.innerHTML = `<p>${config.title}</p>`;
+            document.body.appendChild(title);
 
             const shutterCard = document.createElement("shutter-alt-card");
             document.body.appendChild(shutterCard);
-            shutterCard.setConfig({
-                entity: "cover.pergola_roof",
-                debug: true
-            })
+            shutterCard.setConfig(config)
             let global_hass = {
                 states: {
-                    "cover.pergola_roof": {
-                        "attributes": {
-                            current_position: 0
-                        }
-                    }
                 }
             }
 
-            shutterCard.hass = cloneHass();
+            let pos_field = "current_position";
+            if (config.tilt) {
+                pos_field = "current_tilt_position";
+            }
+
+            global_hass.states[config.entity] = {
+                "attributes": {
+                }
+            }
+            global_hass.states[config.entity]["attributes"][pos_field] = 0;
+
+            shutterCard.hass = cloneHass(global_hass);
 
             // add button 0
             var button0 = document.createElement('button');
@@ -39,8 +44,8 @@
             document.body.appendChild(button0);
 
             button0.onclick = function () {
-                global_hass.states["cover.pergola_roof"].attributes.current_tilt_position = 0;
-                shutterCard.hass = cloneHass();
+                global_hass.states[config.entity].attributes[pos_field] = 0;
+                shutterCard.hass = cloneHass(global_hass);
             };
             // add button 50
             var button50 = document.createElement('button');
@@ -49,8 +54,18 @@
             document.body.appendChild(button50);
 
             button50.onclick = function () {
-                global_hass.states["cover.pergola_roof"].attributes.current_tilt_position = 50;
-                shutterCard.hass = cloneHass();
+                global_hass.states[config.entity].attributes[pos_field] = 50;
+                shutterCard.hass = cloneHass(global_hass);
+            };
+            // add button 86
+            var button86 = document.createElement('button');
+            button86.type = 'button';
+            button86.innerHTML = 'set 86%';
+            document.body.appendChild(button86);
+
+            button86.onclick = function () {
+                global_hass.states[config.entity].attributes[pos_field] = 86;
+                shutterCard.hass = cloneHass(global_hass);
             };
             // add button 100
             var button100 = document.createElement('button');
@@ -59,14 +74,39 @@
             document.body.appendChild(button100);
 
             button100.onclick = function () {
-                global_hass.states["cover.pergola_roof"].attributes.current_tilt_position = 100;
-                shutterCard.hass = cloneHass();
+                global_hass.states[config.entity].attributes[pos_field] = 100;
+                shutterCard.hass = cloneHass(global_hass);
             };
         }
+
+        function init() {
+
+            this.addShutter({
+                entity: "cover.pergola_roof_no_tilt",
+                title: "No tilt, command default",
+                debug: true
+            })
+
+            this.addShutter({
+                entity: "cover.pergola_top_no_tilt",
+                title: "No tilt, command default",
+                debug: true,
+                invertCommand: false
+            })
+
+            this.addShutter({
+                entity: "cover.pergola_top_no_tilt",
+                title: "No tilt, command inverted",
+                debug: true,
+                invertCommand: true
+            })
+
+        }
     </script>
-    <style>.back {
-        background: no-repeat url("https://images.unsplash.com/photo-1553095066-5014bc7b7f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8d2FsbCUyMGJhY2tncm91bmR8ZW58MHx8MHx8fDA%3D&w=1000&q=80");
-    }
+    <style>
+        .back {
+            background: no-repeat url("https://images.unsplash.com/photo-1553095066-5014bc7b7f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8d2FsbCUyMGJhY2tncm91bmR8ZW58MHx8MHx8fDA%3D&w=1000&q=80");
+        }
     </style>
 </head>
 
