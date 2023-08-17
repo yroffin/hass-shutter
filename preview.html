@@ -82,30 +82,43 @@
         function init() {
 
             this.addShutter({
-                entity: "cover.pergola_roof_no_tilt",
-                title: "No tilt, command default",
-                debug: true
+                entity: "cover.default_not_inverted",
+                title: "Default not inverted",
+                debug: true,
+                tilt: false,
+                invertCommand: false
             })
 
             this.addShutter({
-                entity: "cover.pergola_top_no_tilt",
-                title: "No tilt, command default",
+                entity: "cover.tilt_not_inverted",
+                title: "Tilt not inverted",
+                tilt: true,
                 debug: true,
                 invertCommand: false
             })
 
             this.addShutter({
-                entity: "cover.pergola_top_no_tilt",
-                title: "No tilt, command inverted",
+                entity: "cover.default_inverted_command",
+                title: "Default inverted command and position",
                 debug: true,
-                invertCommand: true
+                tilt: false,
+                invertCommand: true,
+                invertPosition: true
             })
 
+            this.addShutter({
+                entity: "cover.tilt_inverted_command",
+                title: "Tilt inverted command and position",
+                tilt: true,
+                debug: true,
+                invertCommand: true,
+                invertPosition: true
+            })
         }
     </script>
     <style>
         .back {
-            background: no-repeat url("https://images.unsplash.com/photo-1553095066-5014bc7b7f2d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8d2FsbCUyMGJhY2tncm91bmR8ZW58MHx8MHx8fDA%3D&w=1000&q=80");
+            background: repeat url("https://imgs.search.brave.com/y6eoEK1atl2n7TtiSBoc6nVNexaJlqZNCkja0GIF_9w/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9yZXMt/Mi5jbG91ZGluYXJ5/LmNvbS9iZWRyb3Np/YW5zL2ltYWdlL3Vw/bG9hZC90X3Byb2R1/Y3RfNTAwLGZfYXV0/by92MS9jZG4tYmVk/cm9zaWFuL2Fzc2V0/cy9wcm9kdWN0cy9o/aXJlc2ltYWdlcy9E/RUNURVhHUkUxNjQ3/LmpwZw");
         }
     </style>
 </head>

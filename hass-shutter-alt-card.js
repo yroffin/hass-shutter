@@ -118,7 +118,7 @@ class ShutterAltCard extends HTMLElement {
                     break;
 
                 case 'stop':
-                    service = 'stop_cover_tilt';
+                    service = 'stop_cover';
                     break;
                 default:
                     return
@@ -204,7 +204,7 @@ class ShutterAltCard extends HTMLElement {
         <!-- hud -->
         <g transform="translate(${this.config.hud.x},${this.config.hud.y})" fill-opacity="${this.config.hud.fillOpacity}">
             <circle stroke="${this.config.hud.circle.stroke}" id="my-hud-circle-${this.config.entity}" stroke-width="${this.config.hud.circle.strokeSize}" cx="0" cy="0" r="${this.config.hud.circle.size}" fill="${this.config.hud.circle.fill}"/>
-            <text id="my-hud-value-${this.config.entity}" text-anchor="middle" x="0" y="5" stroke="${this.config.hud.text.stroke}" stroke-width="1px">VALUE</text>
+            <text id="my-hud-value-${this.config.entity}" text-anchor="middle" x="0" y="5" stroke="${this.config.hud.text.stroke}" stroke-width="1px">N/A</text>
         </g>
         <!-- hud -->
         <g id="my-cmd-up-${this.config.entity}" transform="translate(${this.config.command.up.x},${this.config.command.up.y})" fill-opacity="${this.config.command.fillOpacity}">
@@ -271,7 +271,11 @@ class ShutterAltCard extends HTMLElement {
         }
         let hud = this.querySelectorInline(`my-hud-value-${this.config.entity}`);
         if (hud) {
-            hud.innerHTML = posy;
+            if (this.config.invertPosition) {
+                hud.innerHTML = 100 - posy;
+            } else {
+                hud.innerHTML = posy;
+            }
         }
     }
 
