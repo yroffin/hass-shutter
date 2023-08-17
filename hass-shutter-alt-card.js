@@ -95,6 +95,7 @@ class ShutterAltCard extends HTMLElement {
             if (command === 'down') {
                 return "up";
             }
+            return command;
         } else {
             return command;
         }
@@ -121,6 +122,7 @@ class ShutterAltCard extends HTMLElement {
                     service = 'stop_cover';
                     break;
                 default:
+                    this.log("unknown command", command);
                     return
             }
         } else {
@@ -137,6 +139,7 @@ class ShutterAltCard extends HTMLElement {
                     service = 'stop_cover';
                     break;
                 default:
+                    this.log("unknown command", command);
                     return
             }
         }
