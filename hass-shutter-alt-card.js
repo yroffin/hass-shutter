@@ -72,11 +72,12 @@ class ShutterAltCard extends HTMLElement {
                 let percent = Math.trunc((this.dragSession.offsetY - event.offsetY) / this.dragSession.offsetY * 100) + 5;
                 if (percent < 0) percent = 0;
                 if (percent > 100) percent = 100;
-                if (this.config.invertPosition) {
-                    percent = 100 - percent;
-                }
                 this.dragSession.target = "up";
-                this.dragSession.percent = percent;
+                if (this.config.invertPosition) {
+                    this.dragSession.percent = 100 - percent;
+                } else {
+                    this.dragSession.percent = percent;
+                }
                 this.myDragValue.innerHTML = `${percent} %`;
             }
         }
