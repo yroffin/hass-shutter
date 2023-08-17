@@ -1,8 +1,12 @@
 // Cf. https://developers.home-assistant.io/docs/frontend/custom-ui/custom-card?_highlight=custome
+let __this = undefined;
+
 class ShutterAltCard extends HTMLElement {
     // Constructor
     constructor() {
         super();
+
+        this._instance = false;
     }
 
     // Whenever the state changes, a new `hass` object is set. Use this to
@@ -32,29 +36,10 @@ class ShutterAltCard extends HTMLElement {
 
         this.log("position current/tilt/state", currentPosition, currentTiltPosition, status);
 
-        // Initialize the content if it's not there yet.
-        this.innerHTML = this.buildInnterHTML();
-
-        // Handler
-        let cmdUp = this.querySelectorInline(`my-cmd-up-${this.config.entity}`);
-        if (cmdUp) {
-            cmdUp.addEventListener("click", (e) => {
-                this.eventHandler("up", e);
-            });
-        }
-
-        let cmdStop = this.querySelectorInline(`my-cmd-stop-${this.config.entity}`);
-        if (cmdStop) {
-            cmdStop.addEventListener("click", (e) => {
-                this.eventHandler("stop", e);
-            });
-        }
-
-        let cmdDown = this.querySelectorInline(`my-cmd-down-${this.config.entity}`);
-        if (cmdDown) {
-            cmdDown.addEventListener("click", (e) => {
-                this.eventHandler("down", e);
-            });
+        // Build component only once
+        if (this._instance === false) {
+            this.buildComponent();
+            this._instance = true;
         }
 
         let positionFilled = false;
@@ -80,10 +65,136 @@ class ShutterAltCard extends HTMLElement {
 
     }
 
-    s    // Handler
-    eventHandler(target, event) {
-        this.log("eventHandler", target, event);
-        this.command(target);
+    // drag
+    drag(event) {
+        if (event.offsetY) {
+            if (this.dragSession) {
+                let percent = Math.trunc((this.dragSession.offsetY - event.offsetY) / this.dragSession.offsetY * 100) + 5;
+                if (percent < 0) percent = 0;
+                if (percent > 100) percent = 100;
+                if (this.config.invertPosition) {
+                    percent = 100 - percent;
+                }
+                this.dragSession.target = "up";
+                this.dragSession.percent = percent;
+                this.myDragValue.innerHTML = `${percent} %`;
+            }
+        }
+    }
+
+    // drag stop
+    dragStop(event) {
+        if (this.dragSession) {
+            this.myDragArea.setAttribute("visibility", "hidden");
+            this.myDragValue.innerHTML = `${this.dragSession.percent} %`;
+            this.log("[STOP]", this.dragSession.percent);
+            this.command("set", 100 - this.dragSession.percent);
+        }
+        this.dragSession = undefined;
+    }
+
+    // drag start
+    dragStart(event) {
+        if (event.offsetY) {
+            this.dragSession = {
+                isDragging: true,
+                offsetY: event.offsetY,
+                percent: 0
+            }
+            this.myDragArea.setAttribute("visibility", "visible");
+            this.log("[START]", this.dragSession);
+        }
+    }
+
+    // buildComponent
+    buildComponent() {
+        let map = {
+            // mouseMove
+            mouseMove: (event) => {
+                if (event.cancelable) {
+                    event.preventDefault();
+                }
+                this.drag(event);
+            },
+
+            // mouseUp
+            mouseUp: (event) => {
+                if (event.cancelable) {
+                    event.preventDefault();
+                }
+                this.dragStop(event);
+            },
+
+            // mouseDown
+            mouseDown: (event) => {
+                if (event.cancelable) {
+                    event.preventDefault();
+                }
+                this.dragStart(event);
+            }
+        }
+
+        // Initialize the content if it's not there yet.
+        this.innerHTML = this.buildInnterHTML();
+
+        // Handler
+        let cmdUp = this.querySelectorInline(`my-cmd-up-${this.config.entity}`);
+        if (cmdUp) {
+            ["click", "mousedown", "touchstart", "pointerdown"].forEach((listener) => {
+                cmdUp.addEventListener(listener, (e) => {
+                    this.eventHandler("up", e, (new Date()).getSeconds());
+                });
+            });
+        }
+
+        let cmdStop = this.querySelectorInline(`my-cmd-stop-${this.config.entity}`);
+        if (cmdStop) {
+            ["click", "mousedown", "touchstart", "pointerdown"].forEach((listener) => {
+                cmdStop.addEventListener(listener, (e) => {
+                    this.eventHandler("stop", e, (new Date()).getSeconds());
+                });
+            });
+        }
+
+        let cmdDown = this.querySelectorInline(`my-cmd-down-${this.config.entity}`);
+        if (cmdDown) {
+            ["click", "mousedown", "touchstart", "pointerdown"].forEach((listener) => {
+                cmdDown.addEventListener(listener, (e) => {
+                    this.eventHandler("down", e, (new Date()).getSeconds());
+                });
+            });
+        }
+
+        this.myShutter = this.querySelectorInline(`my-shutter-${this.config.entity}`);
+        this.myDragListener = this.querySelectorInline(`my-drag-listener-${this.config.entity}`);
+        this.myDragArea = this.querySelectorInline(`my-drag-area-${this.config.entity}`);
+        this.myDragValue = this.querySelectorInline(`my-drag-value-${this.config.entity}`);
+
+        // Add listener
+        this.myDragListener.addEventListener('mousemove', map.mouseMove);
+        this.myDragListener.addEventListener('touchmove', map.mouseMove);
+        this.myDragListener.addEventListener('pointermove', map.mouseMove);
+
+        this.myDragListener.addEventListener('mousedown', map.mouseDown);
+        this.myDragListener.addEventListener('touchstart', map.mouseDown);
+        this.myDragListener.addEventListener('pointerdown', map.mouseDown);
+
+        // Global listener to catch all UP (catch them all)
+        document.addEventListener('mouseup', map.mouseUp);
+        document.addEventListener('touchend', map.mouseUp);
+        document.addEventListener('pointerup', map.mouseUp);
+    }
+
+    // Handler
+    eventHandler(target, event, seconds) {
+        if (seconds !== this.eventHandlerLastSeconds) {
+            this.eventHandlerLastSeconds = seconds;
+
+            this.log("eventHandler", target, event, seconds);
+            this.command(target);
+        } else {
+            this.log("eventHandler [IGNORE]", target, event, seconds);
+        }
     }
 
     // invert command
@@ -103,8 +214,10 @@ class ShutterAltCard extends HTMLElement {
 
     // Handler
     command(command, position) {
-        let service = '';
-        let args = '';
+        let service = undefined;
+        let args = {
+            position: position
+        }
 
         command = this.invertCheck(command);
 
@@ -117,13 +230,6 @@ class ShutterAltCard extends HTMLElement {
                 case 'down':
                     service = 'close_cover_tilt';
                     break;
-
-                case 'stop':
-                    service = 'stop_cover';
-                    break;
-                default:
-                    this.log("unknown command", command);
-                    return
             }
         } else {
             switch (command) {
@@ -134,32 +240,38 @@ class ShutterAltCard extends HTMLElement {
                 case 'down':
                     service = 'close_cover';
                     break;
-
-                case 'stop':
-                    service = 'stop_cover';
-                    break;
-                default:
-                    this.log("unknown command", command);
-                    return
             }
         }
 
-        this.log("callService", 'cover', service, {
-            entity_id: this.config.entity,
-            ...args
-        });
+        switch (command) {
+            case 'stop':
+                service = 'stop_cover';
+                break;
 
-        this.callService('cover', service, {
-            entity_id: this.config.entity,
-            ...args
-        });
+            case 'set':
+                service = 'set_cover_position';
+                break;
+        }
+
+        if (service) {
+            this.log("callService", 'cover', service, {
+                entity_id: this.config.entity,
+                ...args
+            });
+
+            this.callService('cover', service, {
+                entity_id: this.config.entity,
+                ...args
+            });
+
+        }
     }
 
     // Build inner HTML of component
     buildInnterHTML() {
         // Compute max size for width and heights
-        let maxWidth = this.config.lame.x * 2 + this.config.lame.width;
-        let maxHeight = this.config.lame.y * 2 + this.config.lame.height * this.config.lame.count;
+        this.maxWidth = this.config.lame.x * 2 + this.config.lame.width;
+        this.maxHeight = this.config.lame.y * 2 + this.config.lame.height * this.config.lame.count;
 
         this.log("lame configuration", this.config.lame)
 
@@ -183,7 +295,7 @@ class ShutterAltCard extends HTMLElement {
 
         // Add all lame
         lame.forEach(() => {
-            group += `<rect stroke="${this.config.lame.stroke}" id="my-lame-${lameCount}-${this.config.entity}" height="${height}" width="${width}" y="${posy}" x="${posx}" fill="${this.config.lame.fill}"/>\n`
+            group += `<rect stroke = "${this.config.lame.stroke}" id="my-lame-${lameCount}-${this.config.entity}" height = "${height}" width = "${width}" y = "${posy}" x = "${posx}" fill = "${this.config.lame.fill}" />\n`
             posy += height;
             lameCount += 1;
         })
@@ -191,48 +303,56 @@ class ShutterAltCard extends HTMLElement {
         this.log("motor configuration", this.config.motor)
 
         return `
-        <ha-card header="${this.config.title}">
-        <div class="card-content" style="text-align: center;">
+            <ha-card header="${this.config.title}">
+                <div class="card-content" style="text-align: center;">
 
-        <svg id="my-shutter-${this.config.entity}" width="${maxWidth}" height="${maxHeight}" xmlns="http://www.w3.org/2000/svg">
+                    <svg id="my-shutter-${this.config.entity}" width="${this.maxWidth}" height="${this.maxHeight}" xmlns="http://www.w3.org/2000/svg">
 
-        <!-- misc rectangle -->
-        <rect stroke="${this.config.misc.stroke}" id="my-rect-misc-${this.config.entity}" height="${maxHeight}" width="${maxWidth}" y="0" x="0" fill="${this.config.misc.fill}"/>
-        <g id="my-panel-${this.config.entity}" transform="translate(${x},${y})">
-        <!-- lame rectangle -->
-        ${group}
-        </g>
-        <!-- motor -->
-        <rect stroke="${this.config.motor.stroke}" id="my-rect-motor-${this.config.entity}" height="${this.config.motor.height}" width="${maxWidth}" x="${this.config.motor.x}" y="${this.config.motor.y}" fill="${this.config.motor.fill}"/>
-        <!-- hud -->
-        <g transform="translate(${this.config.hud.x},${this.config.hud.y})" fill-opacity="${this.config.hud.fillOpacity}">
-            <circle stroke="${this.config.hud.circle.stroke}" id="my-hud-circle-${this.config.entity}" stroke-width="${this.config.hud.circle.strokeSize}" cx="0" cy="0" r="${this.config.hud.circle.size}" fill="${this.config.hud.circle.fill}"/>
-            <text id="my-hud-value-${this.config.entity}" text-anchor="middle" x="0" y="5" stroke="${this.config.hud.text.stroke}" stroke-width="1px">N/A</text>
-        </g>
-        <!-- hud -->
-        <g id="my-cmd-up-${this.config.entity}" transform="translate(${this.config.command.up.x},${this.config.command.up.y})" fill-opacity="${this.config.command.fillOpacity}">
-            <circle stroke="${this.config.command.up.stroke}" id="my-up-circle-${this.config.entity}" stroke-width="${this.config.command.up.strokeWidth}" cx="0" cy="0" r="${this.config.command.up.size}" fill="${this.config.command.up.fill}"/>
-            <g transform="scale(${this.config.command.up.svg.scale}),translate(${this.config.command.up.svg.x},${-this.config.command.up.svg.y})">
-                ${this.config.command.up.svg.body}
-            </g>
-        </g>
-        <g id="my-cmd-stop-${this.config.entity}" transform="translate(${this.config.command.stop.x},${this.config.command.stop.y})" fill-opacity="${this.config.command.fillOpacity}">
-            <circle stroke="${this.config.command.stop.stroke}" id="my-stop-circle-${this.config.entity}" stroke-width="${this.config.command.stop.strokeWidth}" cx="0" cy="0" r="${this.config.command.stop.size}" fill="${this.config.command.stop.fill}"/>
-            <g transform="scale(${this.config.command.stop.svg.scale}),translate(${this.config.command.stop.svg.x},${-this.config.command.stop.svg.y})">
-                ${this.config.command.stop.svg.body}
-            </g>
-        </g>
-        <g id="my-cmd-down-${this.config.entity}" transform="translate(${this.config.command.down.x},${this.config.command.down.y})" fill-opacity="${this.config.command.fillOpacity}">
-            <circle stroke="${this.config.command.down.stroke}" id="my-up-circle-${this.config.entity}" stroke-width="${this.config.command.down.strokeWidth}" cx="0" cy="0" r="${this.config.command.down.size}" fill="${this.config.command.down.fill}"/>
-            <g transform="scale(${this.config.command.down.svg.scale}),translate(${this.config.command.down.svg.x},${-this.config.command.down.svg.y})">
-                ${this.config.command.down.svg.body}
-            </g>
-        </g>
-        </svg>
+                        <!-- misc rectangle -->
+                        <rect stroke="${this.config.misc.stroke}" id="my-rect-misc-${this.config.entity}" height="${this.maxHeight}" width="${this.maxWidth}" y="0" x="0" fill="${this.config.misc.fill}" />
+                        <g id="my-panel-${this.config.entity}" transform="translate(${x},${y})">
+                            <!-- lame rectangle -->
+                            ${group}
+                        </g>
+                        <!-- motor -->
+                        <rect stroke="${this.config.motor.stroke}" id="my-rect-motor-${this.config.entity}" height="${this.config.motor.height}" width="${this.maxWidth}" x="${this.config.motor.x}" y="${this.config.motor.y}" fill="${this.config.motor.fill}" />
+                        <!-- hud -->
+                        <g transform="translate(${this.config.hud.x},${this.config.hud.y})" fill-opacity="${this.config.hud.fillOpacity}">
+                            <circle stroke="${this.config.hud.circle.stroke}" id="my-hud-circle-${this.config.entity}" stroke-width="${this.config.hud.circle.strokeSize}" cx="0" cy="0" r="${this.config.hud.circle.size}" fill="${this.config.hud.circle.fill}" />
+                            <text id="my-hud-value-${this.config.entity}" text-anchor="middle" x="0" y="5" stroke="${this.config.hud.text.stroke}" stroke-width="1px">N/A</text>
+                        </g>
+                        <!-- hud -->
+                        <g id="my-cmd-up-${this.config.entity}" transform="translate(${this.config.command.up.x},${this.config.command.up.y})" fill-opacity="${this.config.command.fillOpacity}">
+                            <circle stroke="${this.config.command.up.stroke}" id="my-up-circle-${this.config.entity}" stroke-width="${this.config.command.up.strokeWidth}" cx="0" cy="0" r="${this.config.command.up.size}" fill="${this.config.command.up.fill}" />
+                            <g transform="scale(${this.config.command.up.svg.scale}),translate(${this.config.command.up.svg.x},${-this.config.command.up.svg.y})">
+                                ${this.config.command.up.svg.body}
+                            </g>
+                        </g>
+                        <g id="my-cmd-stop-${this.config.entity}" transform="translate(${this.config.command.stop.x},${this.config.command.stop.y})" fill-opacity="${this.config.command.fillOpacity}">
+                            <circle stroke="${this.config.command.stop.stroke}" id="my-stop-circle-${this.config.entity}" stroke-width="${this.config.command.stop.strokeWidth}" cx="0" cy="0" r="${this.config.command.stop.size}" fill="${this.config.command.stop.fill}" />
+                            <g transform="scale(${this.config.command.stop.svg.scale}),translate(${this.config.command.stop.svg.x},${-this.config.command.stop.svg.y})">
+                                ${this.config.command.stop.svg.body}
+                            </g>
+                        </g>
+                        <g id="my-cmd-down-${this.config.entity}" transform="translate(${this.config.command.down.x},${this.config.command.down.y})" fill-opacity="${this.config.command.fillOpacity}">
+                            <circle stroke="${this.config.command.down.stroke}" id="my-up-circle-${this.config.entity}" stroke-width="${this.config.command.down.strokeWidth}" cx="0" cy="0" r="${this.config.command.down.size}" fill="${this.config.command.down.fill}" />
+                            <g transform="scale(${this.config.command.down.svg.scale}),translate(${this.config.command.down.svg.x},${-this.config.command.down.svg.y})">
+                                ${this.config.command.down.svg.body}
+                            </g>
+                        </g>
 
-        </div>
+                        <!-- misc display -->
+                        <g id="my-drag-area-${this.config.entity}" visibility="hidden">
+                            <rect stroke="${this.config.drag.background.stroke}" height="${this.maxHeight}" width="${this.maxWidth}" y="0" x="0" fill="${this.config.drag.background.fill}" fill-opacity="${this.config.drag.background.fillOpacity}" />
+                            <text id="my-drag-value-${this.config.entity}" text-anchor="middle" font-size="${this.config.drag.text.fontSize}" x="${this.maxWidth / 2}" y="${this.maxHeight / 2}" stroke="${this.config.drag.text.stroke}" stroke-width="${this.config.drag.text.strokeWidth}">N/A</text>
+                        </g>
+                        <rect id="my-drag-listener-${this.config.entity}" height="${this.config.drag.area.height}" width="${this.config.drag.area.width}" x="${this.config.drag.area.x}" y="${this.config.drag.area.y}" fill-opacity="${this.config.drag.area.fillOpacity}" />
+
+                    </svg>
+
+                </div>
         </ha-card>
-        `
+            `
     }
 
     // Find by selector
@@ -270,7 +390,7 @@ class ShutterAltCard extends HTMLElement {
         this.log("setPosition", this.config.lame.height, this.config.lame.count, this.config.invertPosition, posy, realy);
         let panel = this.querySelectorInline(`my-panel-${this.config.entity}`);
         if (panel) {
-            panel.setAttribute("transform", `translate(${this.config.lame.x},${this.config.lame.y - realy})`);
+            panel.setAttribute("transform", `translate(${this.config.lame.x}, ${this.config.lame.y - realy})`);
         }
         let hud = this.querySelectorInline(`my-hud-value-${this.config.entity}`);
         if (hud) {
@@ -365,6 +485,28 @@ class ShutterAltCard extends HTMLElement {
             this.config.invertCommand = false
         }
 
+        // drag
+        if (!this.config.drag) this.config.drag = {
+            "area": {
+                "x": 65,
+                "y": 0,
+                "width": 150,
+                "height": 220,
+                "fillOpacity": 0
+            },
+            "background": {
+                "stroke": "black",
+                "fill": "grey",
+                "fillOpacity": 0.2
+            },
+            "text": {
+                "stroke": "black",
+                "strokeWidth": 1,
+                "fontSize": "2em",
+                "fill": "black"
+            }
+        }
+
         // command
         if (!this.config.command) this.config.command = {
             // Global
@@ -380,7 +522,7 @@ class ShutterAltCard extends HTMLElement {
                     "body": `
                     <path d="M12 11L12 19" stroke="#200E32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     <path fill-rule="evenodd" clip-rule="evenodd" d="M16 11L12 5.00001L8.00001 11L16 11Z" stroke="#200E32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    `
+        `
                 },
                 "stroke": "#000000",
                 "strokeWidth": "2",
@@ -397,7 +539,7 @@ class ShutterAltCard extends HTMLElement {
                     "y": 12,
                     "body": `
                     <path fill-rule="evenodd" clip-rule="evenodd" d="M9 8C8.44772 8 8 8.44772 8 9V15C8 15.5523 8.44772 16 9 16H15C15.5523 16 16 15.5523 16 15V9C16 8.44772 15.5523 8 15 8H9ZM6 9C6 7.34315 7.34315 6 9 6H15C16.6569 6 18 7.34315 18 9V15C18 16.6569 16.6569 18 15 18H9C7.34315 18 6 16.6569 6 15V9Z" fill="#000000"/>
-                    `
+                `
                 },
                 "stroke": "#000000",
                 "strokeWidth": "2",
@@ -415,7 +557,7 @@ class ShutterAltCard extends HTMLElement {
                     "body": `
                     <path d="M12 13L12 5" stroke="#200E32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     <path fill-rule="evenodd" clip-rule="evenodd" d="M8 13L12 19L16 13L8 13Z" stroke="#200E32" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    `
+        `
                 },
                 "stroke": "#000000",
                 "strokeWidth": "2",
