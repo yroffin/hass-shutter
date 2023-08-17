@@ -20,14 +20,17 @@ class ShutterAltCard extends HTMLElement {
 
         if (state) {
             if (state.attributes) {
-                currentPosition = state.attributes.current_position >= 0 ? state.attributes.current_position : undefined;
-                currentTiltPosition = state.attributes.current_tilt_position >= 0 ? state.attributes.current_tilt_position : undefined;
+                if (!this.config.tilt) {
+                    currentPosition = state.attributes.current_position >= 0 ? state.attributes.current_position : undefined;
+                } else {
+                    currentTiltPosition = state.attributes.current_tilt_position >= 0 ? state.attributes.current_tilt_position : undefined;
+                }
             }
         }
 
         const status = state ? state.state : undefined;
 
-        this.log("position", currentPosition, currentTiltPosition, status);
+        this.log("position current/tilt/state", currentPosition, currentTiltPosition, status);
 
         // Initialize the content if it's not there yet.
         this.innerHTML = this.buildInnterHTML();
@@ -54,20 +57,27 @@ class ShutterAltCard extends HTMLElement {
             });
         }
 
-        if (currentTiltPosition >= 0) {
+        let positionFilled = false;
+        // tilt
+        if (this.config.tilt && currentTiltPosition >= 0) {
+            positionFilled = true;;
             this.setPosition(currentTiltPosition)
-        } else {
-            if (currentPosition >= 0) {
-                this.setPosition(currentPosition)
-            } else {
-                if (status === 'open') {
-                    this.setPosition(100)
-                }
-                if (status === 'closed') {
-                    this.setPosition(0)
-                }
-            }
         }
+
+        // no tilt
+        if (!this.config.tilt && currentPosition >= 0) {
+            positionFilled = true;;
+            this.setPosition(currentPosition)
+        }
+
+        // status is set
+        if (!positionFilled && status === 'open') {
+            this.setPosition(100)
+        }
+        if (!positionFilled && status === 'closed') {
+            this.setPosition(0)
+        }
+
     }
 
     s    // Handler
@@ -76,10 +86,26 @@ class ShutterAltCard extends HTMLElement {
         this.command(target);
     }
 
+    // invert command
+    invertCheck(command) {
+        if (this.config.invertCommand) {
+            if (command === 'up') {
+                return "down";
+            }
+            if (command === 'down') {
+                return "up";
+            }
+        } else {
+            return command;
+        }
+    }
+
     // Handler
     command(command, position) {
         let service = '';
         let args = '';
+
+        command = this.invertCheck(command);
 
         if (this.config.tilt) {
             switch (command) {
@@ -232,8 +258,13 @@ class ShutterAltCard extends HTMLElement {
     // Fix position
     // posy is a percent value (0% ... 100%)
     setPosition(posy) {
-        let realy = (this.config.lame.height * this.config.lame.count) * posy / 100;
-        this.log("setPosition", this.config.lame.height, this.config.lame.count, posy, realy);
+        let realy = undefined;
+        if (this.config.invertPosition) {
+            realy = (this.config.lame.height * this.config.lame.count) * (100 - posy) / 100;
+        } else {
+            realy = (this.config.lame.height * this.config.lame.count) * posy / 100;
+        }
+        this.log("setPosition", this.config.lame.height, this.config.lame.count, this.config.invertPosition, posy, realy);
         let panel = this.querySelectorInline(`my-panel-${this.config.entity}`);
         if (panel) {
             panel.setAttribute("transform", `translate(${this.config.lame.x},${this.config.lame.y - realy})`);
@@ -313,7 +344,19 @@ class ShutterAltCard extends HTMLElement {
         }
 
         // tilt
-        if (!this.config.tilt) this.config.tilt = false
+        if (!this.config.tilt) {
+            this.config.tilt = false
+        }
+
+        // invertPosition
+        if (!this.config.invertPosition) {
+            this.config.invertPosition = false
+        }
+
+        // invertCommand
+        if (!this.config.invertCommand) {
+            this.config.invertCommand = false
+        }
 
         // command
         if (!this.config.command) this.config.command = {
