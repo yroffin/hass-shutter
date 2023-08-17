@@ -63,6 +63,22 @@ hud:
     fill: "#ffffff"
   text: 
     stroke: "#000000"
+drag:
+  area: 
+    x: 65
+    y: 0
+    width: 150
+    height: 220
+    fillOpacity: 0
+  background: 
+    stroke: "black"
+    fill: "grey"
+    fillOpacity: 0.2
+  text: 
+    stroke: "black"
+    strokeWidth: 1
+    fontSize: "2em"
+    fill: "black"
 command: 
   fillOpacity: 0.6
   up: 
