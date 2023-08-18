@@ -46,6 +46,12 @@ lame:
   count: 20
   stroke: "#000000"
   fill: "#ffffff"
+window:
+  frame:
+    size: 10
+    fill: "white"
+  glass:
+    fill: "grey"
 motor: 
   x: 0
   y: 0

@@ -303,6 +303,13 @@ class ShutterAltCard extends HTMLElement {
 
         this.log("motor configuration", this.config.motor)
 
+        // Compute window size
+        let windowWidthSize = this.config.lame.width / 2;
+        let windowHeightSize = this.maxHeight - this.config.motor.height;
+        let glassWidthSize = windowWidthSize - (this.config.window.frame.size * 2);
+        let glassHeightSize = windowHeightSize - (this.config.window.frame.size * 3);
+        let posYWindow = this.config.motor.y + this.config.motor.height - this.config.lame.height;
+
         return `
             <ha-card header="${this.config.title}">
                 <div class="card-content" style="text-align: center;">
@@ -311,6 +318,13 @@ class ShutterAltCard extends HTMLElement {
 
                         <!-- misc rectangle -->
                         <rect stroke="${this.config.misc.stroke}" id="my-rect-misc-${this.config.entity}" height="${this.maxHeight}" width="${this.maxWidth}" y="0" x="0" fill="${this.config.misc.fill}" />
+                        <!-- window -->
+                        <g>
+                            <rect stroke="black" height="${windowHeightSize}" width="${windowWidthSize}" x="${this.config.lame.x}" y="${posYWindow}" fill="${this.config.window.frame.fill}" />
+                            <rect stroke="black" height="${windowHeightSize}" width="${windowWidthSize}" x="${this.config.lame.x + windowWidthSize}" y="${posYWindow}" fill="${this.config.window.frame.fill}" />
+                            <rect stroke="black" height="${glassHeightSize}" width="${glassWidthSize}" x="${this.config.lame.x + this.config.window.frame.size}" y="${posYWindow + (this.config.window.frame.size * 2)}" fill="${this.config.window.glass.fill}" />
+                            <rect stroke="black" height="${glassHeightSize}" width="${glassWidthSize}" x="${this.config.lame.x + this.config.window.frame.size + windowWidthSize}" y="${posYWindow + (this.config.window.frame.size * 2)}" fill="${this.config.window.glass.fill}" />
+                        </g>
                         <g id="my-panel-${this.config.entity}" transform="translate(${x},${y})">
                             <!-- lame rectangle -->
                             ${group}
@@ -426,6 +440,17 @@ class ShutterAltCard extends HTMLElement {
             "fill": "#bfbfbf"
         }
 
+        // window
+        if (!this.config.window) this.config.window = {
+            "frame": {
+                "size": 10,
+                "fill": "white"
+            },
+            "glass": {
+                "fill": "grey"
+            }
+        }
+
         // lame
         if (!this.config.lame) this.config.lame = {
             // Initial position of first lame
@@ -450,7 +475,7 @@ class ShutterAltCard extends HTMLElement {
             "height": 30,
             // Color
             "stroke": "#000000",
-            "fill": "#eebb00"
+            "fill": "grey"
         }
 
         // hud
