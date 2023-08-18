@@ -38,64 +38,31 @@ entity: "cover.terrasse"
 
 ## Complete configuration
 
+### Base configuration
+
 ```yaml
 type: custom:shutter-alt-card
 title: Terrasse
 entity: "cover.terrasse"
 debug: true | false
+```
+
+### Command configuration
+
+Options:
+- tilt or tilt behaviour support
+- invertPosition invert position computation
+- invertCommand invert action button (up is down and so on)
+
+```yaml
 tilt: true | false
 invertPosition: true | false
 invertCommand: true | false
-misc: 
-  stroke: "#000000"
-  fill: "#bfbfbf"
-lame: 
-  x: 10
-  y: 10
-  width: 200
-  height: 10
-  count: 20
-  stroke: "#000000"
-  fill: "#ffffff"
-window:
-  frame:
-    size: 10
-    fill: "white"
-  glass:
-    fill: "grey"
-motor: 
-  x: 0
-  y: 0
-  height: 30
-  stroke: "#000000"
-  fill: "#eebb00"
-hud: 
-  x: 180
-  y: 40
-  fillOpacity: 0.6
-  circle: 
-    size: 20
-    strokeSize: 2
-    stroke: "#000000"
-    fill: "#ffffff"
-  text: 
-    stroke: "#000000"
-drag:
-  area: 
-    x: 65
-    y: 0
-    width: 150
-    height: 220
-    fillOpacity: 0
-  background: 
-    stroke: "black"
-    fill: "grey"
-    fillOpacity: 0.2
-  text: 
-    stroke: "black"
-    strokeWidth: 1
-    fontSize: "2em"
-    fill: "black"
+```
+
+Describe render model for up, down and stop
+
+```yaml
 command: 
   fillOpacity: 0.6
   up: 
@@ -134,4 +101,86 @@ command:
     strokeWidth: "2"
     size: 20
     fill: "#ffffff"
+```
+
+### Render configuration
+
+Backward area
+
+```yaml
+misc: 
+  stroke: "#000000"
+  fill: "#bfbfbf"
+```
+
+Lame render model
+
+```yaml
+lame: 
+  x: 10
+  y: 10
+  width: 200
+  height: 10
+  count: 20
+  stroke: "#000000"
+  fill: "#ffffff"
+```
+
+Window render model
+
+```yaml
+window:
+  frame:
+    size: 10
+    fill: "white"
+  glass:
+    fill: "grey"
+```
+
+Motot render model
+
+```yaml
+motor: 
+  x: 0
+  y: 0
+  height: 30
+  stroke: "#000000"
+  fill: "#eebb00"
+```
+
+Hud render model
+
+```yaml
+hud: 
+  x: 180
+  y: 40
+  fillOpacity: 0.6
+  circle: 
+    size: 20
+    strokeSize: 2
+    stroke: "#000000"
+    fill: "#ffffff"
+  text: 
+    stroke: "#000000"
+```
+
+### Drag and drop configuration
+
+```yaml
+drag:
+  area: 
+    x: 65
+    y: 0
+    width: 150
+    height: 220
+    fillOpacity: 0
+  background: 
+    stroke: "black"
+    fill: "grey"
+    fillOpacity: 0.2
+  text: 
+    stroke: "black"
+    strokeWidth: 1
+    fontSize: "2em"
+    fill: "black"
 ```
