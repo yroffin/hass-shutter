@@ -25,7 +25,15 @@ Enable "Advanced Mode" from your user profile page then
 
 ![](README.png)
 
-## Default configuration
+## Minimal configuration
+
+```yaml
+type: custom:shutter-alt-card
+title: Terrasse
+entity: "cover.terrasse"
+```
+
+## Complete configuration
 
 ```yaml
 type: custom:shutter-alt-card
