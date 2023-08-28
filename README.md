@@ -50,12 +50,10 @@ debug: true | false
 ### Command configuration
 
 Options:
-- tilt or tilt behaviour support
 - invertPosition invert position computation
 - invertCommand invert action button (up is down and so on)
 
 ```yaml
-tilt: true | false
 invertPosition: true | false
 invertCommand: true | false
 ```
