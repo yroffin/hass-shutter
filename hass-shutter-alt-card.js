@@ -1,6 +1,15 @@
 // Cf. https://developers.home-assistant.io/docs/frontend/custom-ui/custom-card?_highlight=custome
 let __this = undefined;
 
+const SUPPORT = {
+    SUPPORT_OPEN: 1,
+    SUPPORT_CLOSE: 2,
+    SUPPORT_SET_POSITION: 4,
+    SUPPORT_STOP: 8,
+    SUPPORT_OPEN_TILT: 16,
+    SUPPORT_CLOSE_TILT: 32
+}
+
 class ShutterAltCard extends HTMLElement {
     // Constructor
     constructor() {
@@ -20,21 +29,45 @@ class ShutterAltCard extends HTMLElement {
         const state = hass.states[entityId];
 
         let currentPosition = undefined;
-        let currentTiltPosition = undefined;
+
+        // Usefull to decode features
+        let supported_features = 0;
 
         if (state) {
             if (state.attributes) {
-                if (!this.config.tilt) {
-                    currentPosition = state.attributes.current_position >= 0 ? state.attributes.current_position : undefined;
-                } else {
-                    currentTiltPosition = state.attributes.current_tilt_position >= 0 ? state.attributes.current_tilt_position : undefined;
-                }
+                supported_features = state.attributes.supported_features ? state.attributes.supported_features : 0;
             }
         }
 
-        const status = state ? state.state : undefined;
+        // Decode feature
+        this.features = {
+            open: false,
+            close: false,
+            setPosition: false,
+            openTilt: false,
+            closeTilt: false,
+            stop: false
+        }
+        if (supported_features & SUPPORT.SUPPORT_OPEN) {
+            this.features.open = true;
+        }
+        if (supported_features & SUPPORT.SUPPORT_CLOSE) {
+            this.features.close = true;
+        }
+        if (supported_features & SUPPORT.SUPPORT_SET_POSITION) {
+            this.features.setPosition = true;
+        }
+        if (supported_features & SUPPORT.SUPPORT_OPEN_TILT) {
+            this.features.openTilt = true;
+        }
+        if (supported_features & SUPPORT.SUPPORT_CLOSE_TILT) {
+            this.features.closeTilt = true;
+        }
+        if (supported_features & SUPPORT.SUPPORT_STOP) {
+            this.features.stop = true;
+        }
 
-        this.log("position current/tilt/state", currentPosition, currentTiltPosition, status);
+        const status = state ? state.state : undefined;
 
         // Build component only once
         if (this._instance === false) {
@@ -42,27 +75,17 @@ class ShutterAltCard extends HTMLElement {
             this._instance = true;
         }
 
-        let positionFilled = false;
-        // tilt
-        if (this.config.tilt && currentTiltPosition >= 0) {
-            positionFilled = true;;
-            this.setPosition(currentTiltPosition)
+        currentPosition = state.attributes.current_position >= 0 ? state.attributes.current_position : undefined;
+        if (currentPosition !== undefined) {
+            this.setPosition(currentPosition);
         }
 
-        // no tilt
-        if (!this.config.tilt && currentPosition >= 0) {
-            positionFilled = true;;
-            this.setPosition(currentPosition)
-        }
+        // TODO
+        // TILIT handler
+        // currentPosition = state.attributes.current_tilt_position >= 0 ? state.attributes.current_tilt_position : undefined;
+        // this.setPosition(currentPosition);
 
-        // status is set
-        if (!positionFilled && status === 'open') {
-            this.setPosition(100)
-        }
-        if (!positionFilled && status === 'closed') {
-            this.setPosition(0)
-        }
-
+        this.log("position current/state/features", currentPosition, status, this.features);
     }
 
     // drag
@@ -222,7 +245,7 @@ class ShutterAltCard extends HTMLElement {
 
         command = this.invertCheck(command);
 
-        if (this.config.tilt) {
+        if (this.features.openTilt !== false || this.features.closeTilt !== false) {
             switch (command) {
                 case 'up':
                     service = 'open_cover_tilt';
@@ -388,7 +411,7 @@ class ShutterAltCard extends HTMLElement {
             this.log("Unable to find any element with id", selector)
         } else {
             // Found, then return first item
-            this.log("Found", selector, collector)
+            // this.log("Found", selector, collector)
             return collector[0]
         }
     }
@@ -420,7 +443,7 @@ class ShutterAltCard extends HTMLElement {
     // Log
     log(message, ...optionalParams) {
         if (this.config.debug) {
-            console.log("[DEBUG]", message, optionalParams);
+            console.log(`[${this.config.entity}]`, message, optionalParams);
         }
     }
 
@@ -494,11 +517,6 @@ class ShutterAltCard extends HTMLElement {
             "text": {
                 "stroke": "#000000"
             }
-        }
-
-        // tilt
-        if (!this.config.tilt) {
-            this.config.tilt = false
         }
 
         // invertPosition
