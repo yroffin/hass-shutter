@@ -23,6 +23,18 @@ class ShutterAltCard extends HTMLElement {
     set hass(hass) {
         this.log("setHass", hass)
 
+        if(this.config.debug) {
+            // Charger eruda une seule fois, même si la carte est recréée plusieurs fois
+            if (!window.eruda) {
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/eruda'; // ou le CDN si tu as accès internet
+                script.onload = () => {
+                    window.eruda.init();
+                };
+                document.head.appendChild(script);
+            }
+        }
+
         this.callService = hass.callService;
 
         const entityId = this.config.entity;
