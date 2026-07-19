@@ -1,64 +1,72 @@
-# Component hass-shutter-alt (beta)
+# Shutter Alt Card
 
-Simple homeassistant shutter
+A custom Lovelace card for Home Assistant to control a `cover` (shutter/blind)
+entity, with an animated SVG rendering and drag-to-position control.
 
-This project aim to have a full parametrized shutter (color, position ...)
+![Card preview](README.png)
 
-/!\ this component is in beta mode ... so many bugs can occurs
+## Features
 
-Special thanks to Deejayfool
-- https://github.com/Deejayfool/hass-shutter-card/tree/master
+- SVG rendering of the shutter (slats, window, motor)
+- Drag control to set a precise position
+- Up / Stop / Down buttons
+- Automatic detection of supported features on the entity
+  (`open`, `close`, `set_position`, `stop`, `open_tilt`, `close_tilt`)
+- Fully customizable configuration (colors, sizes, positions)
 
-and Cf. https://developers.home-assistant.io/docs/frontend/custom-ui/custom-card
+## Installation
 
-# Setup
+### Via HACS (recommended)
 
-Enable "Advanced Mode" from your user profile page then
+1. Open HACS in Home Assistant
+2. Go to **Frontend**
+3. Search for **Shutter Alt Card**
+4. Install, then add the resource if it isn't added automatically
 
-- add hass-shutter-alt-card.js to your <config>/www/community folder
-- add url /local/community/hass-shutter-alt-card.js?v=0.0.4 from Configuration -> Lovelace Dashboards -> Resources panel
+### Manual installation
 
-    v1 can be usefull to force refresh on js file loading in your browser
+1. Download `hass-shutter-alt-card.js` from the latest [release](../../releases)
+2. Copy it to `/config/www/`
+3. Add the resource under **Settings > Dashboards > Resources**:
+   ```yaml
+   url: /local/hass-shutter-alt-card.js
+   type: module
+   ```
 
-![](SAMPLE.png)
-
-# Structure
-
-## Abstract
-
-![](README.png)
-
-## Minimal configuration
-
-```yaml
-type: custom:shutter-alt-card
-title: Terrasse
-entity: "cover.terrasse"
-```
-
-## Complete configuration
-
-### Base configuration
+## Configuration
 
 ```yaml
 type: custom:shutter-alt-card
-title: Terrasse
-entity: "cover.terrasse"
-debug: true | false
+entity: cover.my_shutter
+title: Living Room
+invertPosition: false
+invertCommand: false
+debug: false
 ```
 
-### Command configuration
+| Option            | Type    | Default | Description                                        |
+|--------------------|---------|---------|------------------------------------------------------|
+| `entity`           | string  | required| The `cover.*` entity to control                     |
+| `title`            | string  | -       | Title shown in the card header                      |
+| `invertPosition`   | boolean | `false` | Inverts how the position is displayed                |
+| `invertCommand`    | boolean | `false` | Inverts the up/down commands                         |
+| `debug`            | boolean | `false` | Enables debug logging in the console                 |
 
-Options:
-- invertPosition invert position computation
-- invertCommand invert action button (up is down and so on)
+Advanced options are available to customize the look and feel (slats, window,
+motor, HUD, drag area, command buttons) — see [full configuration
+docs](./docs/configuration.md) *(create this if you want to detail it)*.
 
-```yaml
-invertPosition: true | false
-invertCommand: true | false
-```
+## License
 
-Describe render model for up, down and stop
+MIT — see [LICENSE](./LICENSE).
+
+## Contributing
+
+Issues and PRs are welcome.
+
+## Annexe
+
+Render model for up, down and stop
 
 ```yaml
 command: 
@@ -100,8 +108,6 @@ command:
     size: 20
     fill: "#ffffff"
 ```
-
-### Render configuration
 
 Backward area
 
@@ -162,7 +168,7 @@ hud:
     stroke: "#000000"
 ```
 
-### Drag and drop configuration
+Drag and drop configuration
 
 ```yaml
 drag:

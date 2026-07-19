@@ -1,6 +1,7 @@
+
 {
-    "name": "Shutter Alt Card",
-    "filename": "hass-shutter-alt-card.js",
-    "render_readme": true,
-    "content_in_root": true
+  "name": "Shutter Alt Card",
+  "content_in_root": true,
+  "filename": "hass-shutter-alt-card.js",
+  "render_readme": true
 }
