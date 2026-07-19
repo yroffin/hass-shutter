@@ -24,14 +24,16 @@ class ShutterAltCard extends HTMLElement {
         this.log("setHass", hass)
 
         // Charger eruda une seule fois, même si la carte est recréée plusieurs fois
+        /*
         if (!window.eruda) {
             const script = document.createElement('script');
-            script.src = 'https://cdn.jsdelivr.net/npm/eruda'; // ou le CDN si tu as accès internet
+            script.src = 'https://cdn.jsdelivr.net/npm/eruda';
             script.onload = () => {
                 window.eruda.init();
             };
             document.head.appendChild(script);
         }
+        */
 
         this.callService = hass.callService;
 
@@ -145,7 +147,7 @@ class ShutterAltCard extends HTMLElement {
         let map = {
             // mouseMove
             mouseMove: (event) => {
-                if (event.cancelable) {
+                if (this.dragSession && event.cancelable) {
                     event.preventDefault();
                 }
                 this.drag(event);
@@ -153,7 +155,7 @@ class ShutterAltCard extends HTMLElement {
 
             // mouseUp
             mouseUp: (event) => {
-                if (event.cancelable) {
+                if (this.dragSession && event.cancelable) {
                     event.preventDefault();
                 }
                 this.dragStop(event);
